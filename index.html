@@ -1,0 +1,1398 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Дәрігер-диагносттар: дифференциалды диагностика</title>
+  <meta name="description" content="Интерактивная презентация о дифференциалды диагностике для врачей-диагностов: принципы, пример распределения диагнозов и пошаговый алгоритм." />
+  <meta property="og:title" content="Дәрігер-диагносттар: дифференциалды диагностика" />
+  <meta property="og:description" content="Интерактивная презентация о дифференциалды диагностике для врачей-диагностов: принципы, пример распределения диагнозов и пошаговый алгоритм." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <style>
+    /* ==========================================================================
+       БАЗОВЫЕ ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ
+       ========================================================================== */
+    :root {
+      --bg: #FAFAF7;
+      --surface: #FFFFFF;
+      --surface-subtle: #F2F4F2;
+      --accent: #0F766E;
+      --accent-soft: rgba(15, 118, 110, 0.08);
+      --accent-border: rgba(15, 118, 110, 0.22);
+      --text: #1F2937;
+      --text-muted: #526071;
+      --border: rgba(31, 41, 55, 0.1);
+      --track: rgba(31, 41, 55, 0.08);
+      --radius: 14px;
+      --content-max: 1100px;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ==========================================================================
+       КАРКАС ПРЕЗЕНТАЦИИ И МГНОВЕННОЕ ПЕРЕКЛЮЧЕНИЕ СЛАЙДОВ
+       ========================================================================== */
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: var(--bg);
+      touch-action: pan-y;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Смена слайда строго мгновенная (без fade/slide/transform на самом слайде) */
+    .slide {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      padding: clamp(3.25rem, 6vh, 4.75rem) clamp(1.25rem, 4vw, 3.5rem) clamp(4.25rem, 8vh, 5.5rem);
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    .slide-inner {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: auto;
+    }
+
+    /* ==========================================================================
+       ТИПОГРАФИКА И ЭЛЕМЕНТЫ ОФОРМЛЕНИЯ
+       ========================================================================== */
+    .kicker {
+      display: inline-block;
+      font-size: clamp(0.75rem, 1vw, 0.875rem);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: clamp(0.6rem, 1.5vh, 1rem);
+    }
+
+    h1,
+    h2 {
+      color: var(--text);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      text-wrap: balance;
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 4.8vw, 3.85rem);
+      line-height: 1.12;
+      max-width: 18ch;
+    }
+
+    h2 {
+      font-size: clamp(1.55rem, 3.2vw, 2.55rem);
+      line-height: 1.18;
+      margin-bottom: clamp(0.75rem, 2vh, 1.35rem);
+    }
+
+    .subtitle {
+      font-size: clamp(1.05rem, 2vw, 1.5rem);
+      color: var(--text-muted);
+      font-weight: 400;
+      line-height: 1.45;
+      max-width: 42ch;
+      margin-top: clamp(1rem, 2.2vh, 1.5rem);
+    }
+
+    .accent-rule {
+      width: 56px;
+      height: 3px;
+      background-color: var(--accent);
+      border-radius: 2px;
+      margin-top: clamp(1.5rem, 3vh, 2.25rem);
+    }
+
+    /* ==========================================================================
+       УГЛОВОЙ СЧЁТЧИК И НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ
+       ========================================================================== */
+    .slide-counter {
+      position: fixed;
+      top: clamp(1rem, 2.6vh, 1.75rem);
+      right: clamp(1.25rem, 3.5vw, 2.5rem);
+      z-index: 20;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+      user-select: none;
+    }
+
+    .nav-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: clamp(0.85rem, 2.2vh, 1.5rem);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: clamp(0.75rem, 2.5vw, 2rem);
+      padding: 0 clamp(1.25rem, 3.5vw, 2.5rem);
+      pointer-events: none;
+    }
+
+    .nav-btn,
+    .progress-bar {
+      pointer-events: auto;
+    }
+
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background-color: var(--surface);
+      color: var(--text);
+      font-size: 1.35rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+
+    .nav-btn:focus-visible,
+    .progress-segment:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.32;
+      cursor: default;
+    }
+
+    /* Кликабельный нижний прогресс-бар из 6 сегментов */
+    .progress-bar {
+      flex: 1;
+      max-width: 420px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      align-items: center;
+      padding: 6px 0;
+    }
+
+    .progress-segment {
+      position: relative;
+      height: 24px;
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    .progress-segment::before {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background-color: var(--track);
+      transition: background-color 0.16s ease, height 0.16s ease;
+    }
+
+    .progress-segment:hover::before {
+      background-color: var(--accent-border);
+      height: 5px;
+    }
+
+    .progress-segment.passed::before {
+      background-color: rgba(15, 118, 110, 0.35);
+    }
+
+    .progress-segment.current::before {
+      background-color: var(--accent);
+      height: 5px;
+    }
+
+    /* ==========================================================================
+       СЛАЙД 1: ТИТУЛЬНЫЙ
+       ========================================================================== */
+    .hero-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
+      gap: clamp(2rem, 5vw, 4.5rem);
+      align-items: center;
+    }
+
+    .hero-mark {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-svg {
+      width: clamp(160px, 22vw, 260px);
+      height: auto;
+      display: block;
+    }
+
+    .slide-1 .anim-title,
+    .slide-1 .anim-sub,
+    .slide-1 .anim-line,
+    .slide-1 .anim-mark {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+
+    .slide-1.is-animated .anim-title {
+      animation: fadeSlideUp 0.65s var(--ease-out-expo) 0.05s forwards;
+    }
+
+    .slide-1.is-animated .anim-sub {
+      animation: fadeSlideUp 0.65s var(--ease-out-expo) 0.2s forwards;
+    }
+
+    .slide-1.is-animated .anim-line {
+      animation: fadeSlideUp 0.65s var(--ease-out-expo) 0.32s forwards;
+    }
+
+    .slide-1.is-animated .anim-mark {
+      animation: fadeSlideUp 0.75s var(--ease-out-expo) 0.25s forwards;
+    }
+
+    /* ==========================================================================
+       СЛАЙД 2: ОПРЕДЕЛЕНИЕ И 3 КАРТОЧКИ-ПРИНЦИПА
+       ========================================================================== */
+    .lead-text {
+      font-size: clamp(1rem, 1.55vw, 1.2rem);
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 72ch;
+      margin-bottom: clamp(1.5rem, 3.5vh, 2.5rem);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(1rem, 2.2vw, 1.5rem);
+    }
+
+    .principle-card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(1.25rem, 2.5vw, 1.85rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      opacity: 0;
+      transform: translateY(18px);
+    }
+
+    .card-num {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+
+    .card-title {
+      font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .card-desc {
+      font-size: clamp(0.875rem, 1.15vw, 0.96rem);
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .slide-2.is-animated .principle-card:nth-child(1) {
+      animation: fadeSlideUp 0.55s var(--ease-out-expo) 0ms forwards;
+    }
+
+    .slide-2.is-animated .principle-card:nth-child(2) {
+      animation: fadeSlideUp 0.55s var(--ease-out-expo) 150ms forwards;
+    }
+
+    .slide-2.is-animated .principle-card:nth-child(3) {
+      animation: fadeSlideUp 0.55s var(--ease-out-expo) 300ms forwards;
+    }
+
+    /* ==========================================================================
+       СЛАЙД 3: ГОРИЗОНТАЛЬНАЯ СТОЛБЧАТАЯ ДИАГРАММА
+       ========================================================================== */
+    .chart-card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: clamp(1.25rem, 3vw, 2.25rem);
+    }
+
+    .chart-list {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.9rem, 2vh, 1.35rem);
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: minmax(150px, 230px) minmax(0, 1fr) 56px;
+      align-items: center;
+      gap: clamp(0.75rem, 2vw, 1.25rem);
+    }
+
+    .chart-label {
+      font-size: clamp(0.92rem, 1.3vw, 1.05rem);
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .chart-track {
+      position: relative;
+      height: clamp(22px, 3vh, 28px);
+      background-color: var(--surface-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* Столбец растёт слева направо от 0 до целевой ширины за 0.8 с */
+    .chart-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 8px;
+      background-color: var(--accent);
+      transition: width 0.8s var(--ease-out-expo);
+    }
+
+    .chart-row:nth-child(2) .chart-bar { opacity: 0.88; }
+    .chart-row:nth-child(3) .chart-bar { opacity: 0.76; }
+    .chart-row:nth-child(4) .chart-bar { opacity: 0.64; }
+    .chart-row:nth-child(5) .chart-bar { opacity: 0.52; }
+
+    /* Поочерёдная задержка по 100 мс на каждый столбец */
+    .chart-row:nth-child(1) .chart-bar { transition-delay: 0ms; }
+    .chart-row:nth-child(2) .chart-bar { transition-delay: 100ms; }
+    .chart-row:nth-child(3) .chart-bar { transition-delay: 200ms; }
+    .chart-row:nth-child(4) .chart-bar { transition-delay: 300ms; }
+    .chart-row:nth-child(5) .chart-bar { transition-delay: 400ms; }
+
+    .chart-value {
+      font-size: clamp(0.95rem, 1.35vw, 1.1rem);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      text-align: right;
+    }
+
+    .chart-axis {
+      display: grid;
+      grid-template-columns: minmax(150px, 230px) minmax(0, 1fr) 56px;
+      gap: clamp(0.75rem, 2vw, 1.25rem);
+      margin-top: 0.75rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .chart-ticks {
+      grid-column: 2;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-muted);
+    }
+
+    .chart-caption {
+      margin-top: clamp(0.9rem, 2vh, 1.25rem);
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       СЛАЙД 4: ВЕРТИКАЛЬНЫЙ ДИАГНОСТИЧЕСКИЙ АЛГОРИТМ (БЛОК-СХЕМА)
+       ========================================================================== */
+    .flow-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .flow-step {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: clamp(0.55rem, 1.1vh, 0.82rem) clamp(0.95rem, 2vw, 1.35rem);
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    .flow-step.is-final {
+      border-color: var(--accent-border);
+      background-color: var(--accent-soft);
+    }
+
+    .flow-index {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      background-color: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flow-label {
+      font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .flow-arrow {
+      width: 24px;
+      height: clamp(18px, 2.6vh, 26px);
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .flow-arrow-line {
+      stroke: var(--accent);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-dasharray: 20;
+      stroke-dashoffset: 20;
+    }
+
+    .flow-arrow-head {
+      stroke: var(--accent);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      opacity: 0;
+    }
+
+    /* Последовательное появление блоков и дорисовка стрелок между ними */
+    .slide-4.is-animated .flow-step[data-order="1"] {
+      animation: flowBlockIn 0.35s var(--ease-out-expo) 0.05s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="1"] .flow-arrow-line {
+      animation: drawLine 0.25s ease-out 0.28s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="1"] .flow-arrow-head {
+      animation: fadeOnly 0.15s ease-out 0.45s forwards;
+    }
+
+    .slide-4.is-animated .flow-step[data-order="2"] {
+      animation: flowBlockIn 0.35s var(--ease-out-expo) 0.48s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="2"] .flow-arrow-line {
+      animation: drawLine 0.25s ease-out 0.71s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="2"] .flow-arrow-head {
+      animation: fadeOnly 0.15s ease-out 0.88s forwards;
+    }
+
+    .slide-4.is-animated .flow-step[data-order="3"] {
+      animation: flowBlockIn 0.35s var(--ease-out-expo) 0.91s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="3"] .flow-arrow-line {
+      animation: drawLine 0.25s ease-out 1.14s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="3"] .flow-arrow-head {
+      animation: fadeOnly 0.15s ease-out 1.31s forwards;
+    }
+
+    .slide-4.is-animated .flow-step[data-order="4"] {
+      animation: flowBlockIn 0.35s var(--ease-out-expo) 1.34s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="4"] .flow-arrow-line {
+      animation: drawLine 0.25s ease-out 1.57s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="4"] .flow-arrow-head {
+      animation: fadeOnly 0.15s ease-out 1.74s forwards;
+    }
+
+    .slide-4.is-animated .flow-step[data-order="5"] {
+      animation: flowBlockIn 0.35s var(--ease-out-expo) 1.77s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="5"] .flow-arrow-line {
+      animation: drawLine 0.25s ease-out 2.00s forwards;
+    }
+    .slide-4.is-animated .flow-arrow[data-order="5"] .flow-arrow-head {
+      animation: fadeOnly 0.15s ease-out 2.17s forwards;
+    }
+
+    .slide-4.is-animated .flow-step[data-order="6"] {
+      animation: flowBlockIn 0.35s var(--ease-out-expo) 2.20s forwards;
+    }
+
+    /* ==========================================================================
+       СЛАЙД 5: НЕГІЗГІ ҚОРЫТЫНДЫ (4 НУМЕРОВАННЫХ ТЕЗИСА)
+       ========================================================================== */
+    .summary-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.85rem, 2vh, 1.25rem);
+      margin-top: clamp(1rem, 2.5vh, 1.75rem);
+    }
+
+    .summary-item {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      align-items: center;
+      gap: clamp(0.85rem, 2vw, 1.35rem);
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(0.95rem, 2.2vh, 1.35rem) clamp(1rem, 2.5vw, 1.5rem);
+      opacity: 0;
+      transform: translateX(-14px);
+    }
+
+    .summary-num {
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+    }
+
+    .summary-text {
+      font-size: clamp(0.95rem, 1.4vw, 1.12rem);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .summary-text strong {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .slide-5.is-animated .summary-item:nth-child(1) {
+      animation: slideInRight 0.5s var(--ease-out-expo) 0.05s forwards;
+    }
+    .slide-5.is-animated .summary-item:nth-child(2) {
+      animation: slideInRight 0.5s var(--ease-out-expo) 0.2s forwards;
+    }
+    .slide-5.is-animated .summary-item:nth-child(3) {
+      animation: slideInRight 0.5s var(--ease-out-expo) 0.35s forwards;
+    }
+    .slide-5.is-animated .summary-item:nth-child(4) {
+      animation: slideInRight 0.5s var(--ease-out-expo) 0.5s forwards;
+    }
+
+    /* ==========================================================================
+       СЛАЙД 6: ФИНАЛЬНЫЙ СЛАЙД
+       ========================================================================== */
+    .closing-wrap {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(0.85rem, 2vh, 1.25rem);
+    }
+
+    .closing-title {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .closing-sub {
+      font-size: clamp(1.05rem, 2vw, 1.4rem);
+      color: var(--text-muted);
+      max-width: 36ch;
+    }
+
+    .closing-rule {
+      width: 64px;
+      height: 3px;
+      border-radius: 2px;
+      background-color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    .slide-6 .anim-close-1,
+    .slide-6 .anim-close-2,
+    .slide-6 .anim-close-3 {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+
+    .slide-6.is-animated .anim-close-1 {
+      animation: fadeSlideUp 0.6s var(--ease-out-expo) 0.05s forwards;
+    }
+
+    .slide-6.is-animated .anim-close-2 {
+      animation: fadeSlideUp 0.6s var(--ease-out-expo) 0.18s forwards;
+    }
+
+    .slide-6.is-animated .anim-close-3 {
+      animation: fadeSlideUp 0.6s var(--ease-out-expo) 0.32s forwards;
+    }
+
+    /* ==========================================================================
+       КЛЮЧЕВЫЕ КАДРЫ ВНУТРИСЛАЙДОВЫХ АНИМАЦИЙ
+       ========================================================================== */
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes flowBlockIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(-14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes drawLine {
+      from {
+        stroke-dashoffset: 20;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes fadeOnly {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ==========================================================================
+       АДАПТИВНОСТЬ (ДО 768PX)
+       ========================================================================== */
+    @media (max-width: 768px) {
+      .hero-wrap {
+        grid-template-columns: 1fr;
+        gap: 1.75rem;
+      }
+
+      .hero-mark {
+        justify-content: flex-start;
+      }
+
+      .hero-svg {
+        width: 120px;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-row,
+      .chart-axis {
+        grid-template-columns: minmax(0, 1fr) 48px;
+        gap: 0.4rem 0.75rem;
+      }
+
+      .chart-label {
+        grid-column: 1 / -1;
+      }
+
+      .chart-track {
+        grid-column: 1;
+      }
+
+      .chart-value {
+        grid-column: 2;
+      }
+
+      .chart-ticks {
+        grid-column: 1;
+      }
+
+      .summary-item {
+        grid-template-columns: 34px minmax(0, 1fr);
+      }
+    }
+
+    /* ==========================================================================
+       PREFERS-REDUCED-MOTION: ПОЛНОЕ ОТКЛЮЧЕНИЕ АНИМАЦИЙ
+       ========================================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+
+      .slide-1 .anim-title,
+      .slide-1 .anim-sub,
+      .slide-1 .anim-line,
+      .slide-1 .anim-mark,
+      .principle-card,
+      .flow-step,
+      .flow-arrow-head,
+      .summary-item,
+      .slide-6 .anim-close-1,
+      .slide-6 .anim-close-2,
+      .slide-6 .anim-close-3 {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      .flow-arrow-line {
+        stroke-dashoffset: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck" aria-roledescription="Презентация">
+    <!-- Счётчик текущего слайда в углу -->
+    <div class="slide-counter" id="slideCounter" aria-live="polite">1 / 6</div>
+
+    <!-- СЛАЙД 1: Титульный слайд -->
+    <section class="slide slide-1" data-slide="1" aria-label="Слайд 1: Титульный слайд">
+      <div class="slide-inner">
+        <div class="hero-wrap">
+          <div>
+            <span class="kicker anim-title">Клиникалық ойлау негіздері</span>
+            <h1 class="anim-title">Дәрігер-диагносттар: дифференциалды диагностика</h1>
+            <p class="subtitle anim-sub">Ауруларды бөліп шығару: диаграмма мен алгоритм</p>
+            <div class="accent-rule anim-line" aria-hidden="true"></div>
+          </div>
+
+          <!-- Минималистичная инлайн-SVG иллюстрация процесса отбора диагноза -->
+          <div class="hero-mark anim-mark" aria-hidden="true">
+            <svg class="hero-svg" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="110" cy="110" r="96" stroke="#0F766E" stroke-opacity="0.16" stroke-width="1.5" />
+              <circle cx="110" cy="110" r="68" stroke="#0F766E" stroke-opacity="0.28" stroke-width="1.5" stroke-dasharray="5 5" />
+              <circle cx="110" cy="110" r="38" fill="#0F766E" fill-opacity="0.08" stroke="#0F766E" stroke-width="2" />
+              <path d="M110 92V128M92 110H128" stroke="#0F766E" stroke-width="3" stroke-linecap="round" />
+              <circle cx="110" cy="14" r="5" fill="#0F766E" />
+              <circle cx="206" cy="110" r="4" fill="#0F766E" fill-opacity="0.45" />
+              <circle cx="14" cy="110" r="4" fill="#0F766E" fill-opacity="0.45" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 2: Определение и три принципа -->
+    <section class="slide slide-2" data-slide="2" aria-label="Слайд 2: Определение дифференциальной диагностики">
+      <div class="slide-inner">
+        <span class="kicker">Негізгі ұғым</span>
+        <h2>Дифференциалды диагностика дегеніміз не</h2>
+        <p class="lead-text">
+          Дифференциалды диагностика — ұқсас белгілері бар бірнеше аурудың ішінен нақты бір диагнозды бөліп шығару процесі. Дәрігер науқастың шағымдарын, ауру тарихын және тексеру нәтижелерін жүйелі салыстыра отырып, ықтимал себептерді саралайды. Бұл тәсіл диагностикалық қателерді азайтып, уақытылы әрі дәл ем тағайындауға мүмкіндік береді.
+        </p>
+
+        <div class="cards-grid">
+          <article class="principle-card">
+            <span class="card-num">01</span>
+            <h3 class="card-title">Симптомдарды салыстыру</h3>
+            <p class="card-desc">Белгілердің ұзақтығын, күшею сипатын және қатар жүретін симптомдарды өзара сәйкестендіру.</p>
+          </article>
+
+          <article class="principle-card">
+            <span class="card-num">02</span>
+            <h3 class="card-title">Ықтимал диагноздар тізімі</h3>
+            <p class="card-desc">Жиі кездесетін және шұғыл жағдайларды ескере отырып, жұмыс болжамдарын қалыптастыру.</p>
+          </article>
+
+          <article class="principle-card">
+            <span class="card-num">03</span>
+            <h3 class="card-title">Растау немесе жоққа шығару</h3>
+            <p class="card-desc">Зертханалық және аспаптық деректер арқылы әрбір болжамды дәлелді түрде тексеру.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 3: Горизонтальная столбчатая диаграмма -->
+    <section class="slide slide-3" data-slide="3" aria-label="Слайд 3: Диаграмма распределения диагнозов">
+      <div class="slide-inner">
+        <span class="kicker">Салыстырмалы талдау</span>
+        <h2>Ұқсас белгілер бойынша диагноз таралуы (мысал)</h2>
+
+        <div class="chart-card">
+          <div class="chart-list" id="chartList">
+            <div class="chart-row" data-target="35">
+              <div class="chart-label">Тыныс алу жолдары</div>
+              <div class="chart-track" role="progressbar" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100" aria-label="Тыныс алу жолдары 35%">
+                <div class="chart-bar" data-width="87.5"></div>
+              </div>
+              <div class="chart-value" data-counter>0%</div>
+            </div>
+
+            <div class="chart-row" data-target="25">
+              <div class="chart-label">Жүрек-қан тамыр</div>
+              <div class="chart-track" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" aria-label="Жүрек-қан тамыр 25%">
+                <div class="chart-bar" data-width="62.5"></div>
+              </div>
+              <div class="chart-value" data-counter>0%</div>
+            </div>
+
+            <div class="chart-row" data-target="20">
+              <div class="chart-label">Ас қорыту</div>
+              <div class="chart-track" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" aria-label="Ас қорыту 20%">
+                <div class="chart-bar" data-width="50"></div>
+              </div>
+              <div class="chart-value" data-counter>0%</div>
+            </div>
+
+            <div class="chart-row" data-target="12">
+              <div class="chart-label">Неврологиялық</div>
+              <div class="chart-track" role="progressbar" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100" aria-label="Неврологиялық 12%">
+                <div class="chart-bar" data-width="30"></div>
+              </div>
+              <div class="chart-value" data-counter>0%</div>
+            </div>
+
+            <div class="chart-row" data-target="8">
+              <div class="chart-label">Басқа</div>
+              <div class="chart-track" role="progressbar" aria-valuenow="8" aria-valuemin="0" aria-valuemax="100" aria-label="Басқа 8%">
+                <div class="chart-bar" data-width="20"></div>
+              </div>
+              <div class="chart-value" data-counter>0%</div>
+            </div>
+          </div>
+
+          <div class="chart-axis" aria-hidden="true">
+            <div class="chart-ticks">
+              <span>0%</span>
+              <span>10%</span>
+              <span>20%</span>
+              <span>30%</span>
+              <span>40%</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="chart-caption">Деректер көрсету үшін берілген мысал</p>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 4: Вертикальная блок-схема алгоритма -->
+    <section class="slide slide-4" data-slide="4" aria-label="Слайд 4: Диагностический алгоритм">
+      <div class="slide-inner">
+        <span class="kicker">Қадамдық жүйе</span>
+        <h2>Диагностикалық алгоритм</h2>
+
+        <div class="flow-wrap">
+          <div class="flow-step" data-order="1">
+            <span class="flow-index">1</span>
+            <span class="flow-label">Белгілерді жинау</span>
+          </div>
+          <svg class="flow-arrow" data-order="1" viewBox="0 0 24 24" aria-hidden="true">
+            <line class="flow-arrow-line" x1="12" y1="2" x2="12" y2="19" />
+            <polyline class="flow-arrow-head" points="7 14 12 20 17 14" />
+          </svg>
+
+          <div class="flow-step" data-order="2">
+            <span class="flow-index">2</span>
+            <span class="flow-label">Анамнез және физикалық тексеру</span>
+          </div>
+          <svg class="flow-arrow" data-order="2" viewBox="0 0 24 24" aria-hidden="true">
+            <line class="flow-arrow-line" x1="12" y1="2" x2="12" y2="19" />
+            <polyline class="flow-arrow-head" points="7 14 12 20 17 14" />
+          </svg>
+
+          <div class="flow-step" data-order="3">
+            <span class="flow-index">3</span>
+            <span class="flow-label">Ықтимал диагноздар тізімі</span>
+          </div>
+          <svg class="flow-arrow" data-order="3" viewBox="0 0 24 24" aria-hidden="true">
+            <line class="flow-arrow-line" x1="12" y1="2" x2="12" y2="19" />
+            <polyline class="flow-arrow-head" points="7 14 12 20 17 14" />
+          </svg>
+
+          <div class="flow-step" data-order="4">
+            <span class="flow-index">4</span>
+            <span class="flow-label">Зертханалық және аспаптық зерттеу</span>
+          </div>
+          <svg class="flow-arrow" data-order="4" viewBox="0 0 24 24" aria-hidden="true">
+            <line class="flow-arrow-line" x1="12" y1="2" x2="12" y2="19" />
+            <polyline class="flow-arrow-head" points="7 14 12 20 17 14" />
+          </svg>
+
+          <div class="flow-step" data-order="5">
+            <span class="flow-index">5</span>
+            <span class="flow-label">Диагнозды растау немесе жоққа шығару</span>
+          </div>
+          <svg class="flow-arrow" data-order="5" viewBox="0 0 24 24" aria-hidden="true">
+            <line class="flow-arrow-line" x1="12" y1="2" x2="12" y2="19" />
+            <polyline class="flow-arrow-head" points="7 14 12 20 17 14" />
+          </svg>
+
+          <div class="flow-step is-final" data-order="6">
+            <span class="flow-index">6</span>
+            <span class="flow-label">Емдеу жоспары</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 5: Ключевые выводы -->
+    <section class="slide slide-5" data-slide="5" aria-label="Слайд 5: Основные выводы">
+      <div class="slide-inner">
+        <span class="kicker">Түйін</span>
+        <h2>Негізгі қорытынды</h2>
+
+        <ol class="summary-list">
+          <li class="summary-item">
+            <span class="summary-num">01</span>
+            <p class="summary-text"><strong>Жүйелі салыстыру:</strong> ұқсас симптомдарды нақты клиникалық критерийлер бойынша ажырату дәл диагнозға жол ашады.</p>
+          </li>
+          <li class="summary-item">
+            <span class="summary-num">02</span>
+            <p class="summary-text"><strong>Ықтималдықты ескеру:</strong> жиі кездесетін патологиялармен қатар өмірге қауіпті жағдайларды бірінші кезекте жоққа шығару қажет.</p>
+          </li>
+          <li class="summary-item">
+            <span class="summary-num">03</span>
+            <p class="summary-text"><strong>Дәлелді тексеру:</strong> зертханалық және аспаптық әдістер бастапқы болжамды нақты клиникалық шешімге айналдырады.</p>
+          </li>
+          <li class="summary-item">
+            <span class="summary-num">04</span>
+            <p class="summary-text"><strong>Қателікті азайту:</strong> ретті алгоритм бойынша әрекет ету артық тексерулерді қысқартып, емдеуді уақытылы бастауға көмектеседі.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 6: Финальный слайд -->
+    <section class="slide slide-6" data-slide="6" aria-label="Слайд 6: Завершение">
+      <div class="slide-inner">
+        <div class="closing-wrap">
+          <div class="closing-rule anim-close-1" aria-hidden="true"></div>
+          <h2 class="closing-title anim-close-2">Рахмет!</h2>
+          <p class="closing-sub anim-close-3">Сұрақтарыңыз болса, сұрақ-жауап сессиясы</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Нижняя панель навигации: кнопки «‹» / «›» и кликабельный прогресс-бар -->
+    <nav class="nav-bar" aria-label="Навигация по слайдам">
+      <button type="button" class="nav-btn" id="prevBtn" aria-label="Предыдущий слайд" title="Предыдущий слайд (←)">‹</button>
+
+      <div class="progress-bar" id="progressBar" role="tablist" aria-label="Выбор слайда">
+        <button type="button" class="progress-segment" role="tab" data-goto="1" aria-label="Перейти к слайду 1" title="Слайд 1"></button>
+        <button type="button" class="progress-segment" role="tab" data-goto="2" aria-label="Перейти к слайду 2" title="Слайд 2"></button>
+        <button type="button" class="progress-segment" role="tab" data-goto="3" aria-label="Перейти к слайду 3" title="Слайд 3"></button>
+        <button type="button" class="progress-segment" role="tab" data-goto="4" aria-label="Перейти к слайду 4" title="Слайд 4"></button>
+        <button type="button" class="progress-segment" role="tab" data-goto="5" aria-label="Перейти к слайду 5" title="Слайд 5"></button>
+        <button type="button" class="progress-segment" role="tab" data-goto="6" aria-label="Перейти к слайду 6" title="Слайд 6"></button>
+      </div>
+
+      <button type="button" class="nav-btn" id="nextBtn" aria-label="Следующий слайд" title="Следующий слайд (→)">›</button>
+    </nav>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* ========================================================================
+         ИНИЦИАЛИЗАЦИЯ И СОСТОЯНИЕ ПРЕЗЕНТАЦИИ (БЕЗ ХРАНИЛИЩ)
+         ======================================================================== */
+      var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+      var totalSlides = slides.length;
+      var counterEl = document.getElementById("slideCounter");
+      var prevBtn = document.getElementById("prevBtn");
+      var nextBtn = document.getElementById("nextBtn");
+      var progressSegments = Array.prototype.slice.call(document.querySelectorAll(".progress-segment"));
+      var chartRows = Array.prototype.slice.call(document.querySelectorAll("#chartList .chart-row"));
+      var motionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+
+      var currentIndex = 0; // 0-базовый индекс текущего слайда
+      var counterRafId = null;
+
+      function prefersReducedMotion() {
+        return Boolean(motionQuery && motionQuery.matches);
+      }
+
+      /* Разбор хеша URL (#1..#6) */
+      function parseHashIndex() {
+        var raw = window.location.hash.replace("#", "").trim();
+        var num = parseInt(raw, 10);
+        if (!isNaN(num) && num >= 1 && num <= totalSlides) {
+          return num - 1;
+        }
+        return 0;
+      }
+
+      /* Сброс состояния диаграммы на 3-м слайде */
+      function resetChart() {
+        if (counterRafId !== null) {
+          cancelAnimationFrame(counterRafId);
+          counterRafId = null;
+        }
+
+        chartRows.forEach(function (row) {
+          var bar = row.querySelector(".chart-bar");
+          var valEl = row.querySelector("[data-counter]");
+          if (bar) {
+            bar.style.transition = "none";
+            bar.style.width = "0%";
+          }
+          if (valEl) {
+            valEl.textContent = "0%";
+          }
+        });
+      }
+
+      /* Запуск анимации диаграммы: рост столбцов (0.8 с) и счётчик процентов (1 с) */
+      function startChartAnimation() {
+        resetChart();
+
+        if (prefersReducedMotion()) {
+          chartRows.forEach(function (row) {
+            var target = parseInt(row.getAttribute("data-target"), 10) || 0;
+            var bar = row.querySelector(".chart-bar");
+            var valEl = row.querySelector("[data-counter]");
+            if (bar) {
+              bar.style.width = bar.getAttribute("data-width") + "%";
+            }
+            if (valEl) {
+              valEl.textContent = target + "%";
+            }
+          });
+          return;
+        }
+
+        /* Принудительный reflow, чтобы браузер зафиксировал width: 0% перед переходом */
+        var listEl = document.getElementById("chartList");
+        if (listEl) {
+          void listEl.offsetWidth;
+        }
+
+        chartRows.forEach(function (row) {
+          var bar = row.querySelector(".chart-bar");
+          if (bar) {
+            bar.style.transition = "";
+            bar.style.width = bar.getAttribute("data-width") + "%";
+          }
+        });
+
+        /* Плавный подсчёт процентов через requestAnimationFrame за 1000 мс */
+        var duration = 1000;
+        var startTime = null;
+
+        function tick(timestamp) {
+          if (startTime === null) {
+            startTime = timestamp;
+          }
+          var elapsed = timestamp - startTime;
+          var progress = Math.min(elapsed / duration, 1);
+          /* Плавное замедление в конце (easeOutCubic) */
+          var eased = 1 - Math.pow(1 - progress, 3);
+
+          chartRows.forEach(function (row) {
+            var target = parseInt(row.getAttribute("data-target"), 10) || 0;
+            var valEl = row.querySelector("[data-counter]");
+            if (valEl) {
+              valEl.textContent = Math.round(target * eased) + "%";
+            }
+          });
+
+          if (progress < 1) {
+            counterRafId = requestAnimationFrame(tick);
+          } else {
+            counterRafId = null;
+          }
+        }
+
+        counterRafId = requestAnimationFrame(tick);
+      }
+
+      /* Перезапуск CSS-анимаций внутри активного слайда */
+      function triggerSlideAnimations(slideEl, index) {
+        slideEl.classList.remove("is-animated");
+
+        if (!prefersReducedMotion()) {
+          void slideEl.offsetWidth;
+        }
+
+        slideEl.classList.add("is-animated");
+
+        if (index === 2) {
+          startChartAnimation();
+        } else {
+          resetChart();
+        }
+      }
+
+      /* Обновление интерфейса навигации (счётчик, кнопки, прогресс-бар, URL) */
+      function updateChrome(index, syncHash) {
+        counterEl.textContent = (index + 1) + " / " + totalSlides;
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === totalSlides - 1;
+
+        progressSegments.forEach(function (seg, idx) {
+          seg.classList.toggle("current", idx === index);
+          seg.classList.toggle("passed", idx < index);
+          seg.setAttribute("aria-selected", idx === index ? "true" : "false");
+        });
+
+        if (syncHash) {
+          var targetHash = "#" + (index + 1);
+          if (window.location.hash !== targetHash) {
+            window.location.hash = targetHash;
+          }
+        }
+      }
+
+      /* Переход к нужному слайду (мгновенная смена видимости + запуск внутренних анимаций) */
+      function goToSlide(index, options) {
+        var opts = options || {};
+        var clamped = Math.max(0, Math.min(totalSlides - 1, index));
+
+        slides.forEach(function (slide, idx) {
+          var isTarget = idx === clamped;
+          slide.classList.toggle("active", isTarget);
+          if (!isTarget) {
+            slide.classList.remove("is-animated");
+          }
+        });
+
+        currentIndex = clamped;
+        slides[clamped].scrollTop = 0;
+
+        updateChrome(clamped, opts.syncHash !== false);
+        triggerSlideAnimations(slides[clamped], clamped);
+      }
+
+      /* ========================================================================
+         ОБРАБОТЧИКИ СОБЫТИЙ: КНОПКИ, ПРОГРЕСС-БАР, КЛАВИАТУРА, СВАЙПЫ, ХЕШ
+         ======================================================================== */
+      prevBtn.addEventListener("click", function () {
+        if (currentIndex > 0) {
+          goToSlide(currentIndex - 1);
+        }
+      });
+
+      nextBtn.addEventListener("click", function () {
+        if (currentIndex < totalSlides - 1) {
+          goToSlide(currentIndex + 1);
+        }
+      });
+
+      progressSegments.forEach(function (seg) {
+        seg.addEventListener("click", function () {
+          var target = parseInt(seg.getAttribute("data-goto"), 10) - 1;
+          if (!isNaN(target)) {
+            goToSlide(target);
+          }
+        });
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.metaKey || event.ctrlKey || event.altKey) {
+          return;
+        }
+
+        var key = event.key;
+
+        if (key === "ArrowRight") {
+          event.preventDefault();
+          if (currentIndex < totalSlides - 1) {
+            goToSlide(currentIndex + 1);
+          }
+        } else if (key === "ArrowLeft") {
+          event.preventDefault();
+          if (currentIndex > 0) {
+            goToSlide(currentIndex - 1);
+          }
+        } else if (key === " " || event.code === "Space") {
+          /* Не перехватываем пробел, если фокус уже на кнопке навигации */
+          if (document.activeElement && document.activeElement.tagName === "BUTTON") {
+            return;
+          }
+          event.preventDefault();
+          if (currentIndex < totalSlides - 1) {
+            goToSlide(currentIndex + 1);
+          }
+        } else if (key === "Home") {
+          event.preventDefault();
+          goToSlide(0);
+        } else if (key === "End") {
+          event.preventDefault();
+          goToSlide(totalSlides - 1);
+        }
+      });
+
+      var deckEl = document.getElementById("deck");
+
+      /* Переключение слайда по нажатию на любую область слайда:
+         левая треть (до 35% ширины) — назад, остальная часть слайда — вперёд */
+      function handleSlideTap(clientX) {
+        var width = window.innerWidth || document.documentElement.clientWidth;
+        if (clientX < width * 0.35) {
+          if (currentIndex > 0) {
+            goToSlide(currentIndex - 1);
+          }
+        } else {
+          if (currentIndex < totalSlides - 1) {
+            goToSlide(currentIndex + 1);
+          }
+        }
+      }
+
+      /* Поддержка свайпов и нажатий по всему слайду на сенсорных экранах */
+      var touchStartX = 0;
+      var touchStartY = 0;
+      var touchStartTime = 0;
+      var touchStartedOnControl = false;
+      var ignoreClickUntil = 0;
+
+      document.addEventListener("touchstart", function (event) {
+        if (event.touches.length !== 1) {
+          return;
+        }
+        var target = event.target;
+        touchStartedOnControl = Boolean(target && target.closest && target.closest(".nav-bar, button, a, input, textarea, select"));
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+        touchStartTime = Date.now();
+      }, { passive: true });
+
+      document.addEventListener("touchend", function (event) {
+        if (event.changedTouches.length !== 1 || touchStartedOnControl) {
+          return;
+        }
+        var touch = event.changedTouches[0];
+        var dx = touch.clientX - touchStartX;
+        var dy = touch.clientY - touchStartY;
+        var dt = Date.now() - touchStartTime;
+
+        /* Горизонтальный свайп распознаётся при пороге > 45px и преобладании оси X */
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+          ignoreClickUntil = Date.now() + 450;
+          if (dx < 0 && currentIndex < totalSlides - 1) {
+            goToSlide(currentIndex + 1);
+          } else if (dx > 0 && currentIndex > 0) {
+            goToSlide(currentIndex - 1);
+          }
+          return;
+        }
+
+        /* Короткое нажатие (тап) по любой части слайда */
+        if (Math.abs(dx) < 14 && Math.abs(dy) < 14 && dt < 450) {
+          ignoreClickUntil = Date.now() + 450;
+          handleSlideTap(touch.clientX);
+        }
+      }, { passive: true });
+
+      /* Нажатие мышью по области слайда (без выделения текста и вне нижней панели) */
+      deckEl.addEventListener("click", function (event) {
+        if (Date.now() < ignoreClickUntil) {
+          return;
+        }
+        var target = event.target;
+        if (target && target.closest && target.closest(".nav-bar, button, a, input, textarea, select")) {
+          return;
+        }
+        var selection = window.getSelection ? window.getSelection().toString().trim() : "";
+        if (selection.length > 0) {
+          return;
+        }
+        handleSlideTap(event.clientX);
+      });
+
+      window.addEventListener("hashchange", function () {
+        var nextIndex = parseHashIndex();
+        if (nextIndex !== currentIndex) {
+          goToSlide(nextIndex, { syncHash: false });
+        }
+      });
+
+      if (motionQuery && typeof motionQuery.addEventListener === "function") {
+        motionQuery.addEventListener("change", function () {
+          if (currentIndex === 2) {
+            startChartAnimation();
+          }
+        });
+      }
+
+      /* Инициализация стартового слайда с учётом URL-хеша */
+      var initialIndex = parseHashIndex();
+      goToSlide(initialIndex, { syncHash: true });
+    })();
+  </script>
+</body>
+</html>
